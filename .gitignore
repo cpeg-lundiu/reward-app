@@ -1,4 +1,5 @@
 /vendor/
+/dbdata/
 /.env
 /tailwindcss
 /tailwindcss.exe

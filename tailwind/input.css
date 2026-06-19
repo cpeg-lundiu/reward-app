@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cozy defaults */
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    font-family: theme('fontFamily.sans');
+}
+
+/* Reset default form margins so our flex/grid layouts stay tidy */
+form {
+    margin: 0;
+}

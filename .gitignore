@@ -1,0 +1,8 @@
+/vendor/
+/.env
+/tailwindcss
+/tailwindcss.exe
+/public/css/app.css
+*.log
+.DS_Store
+Thumbs.db

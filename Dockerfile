@@ -21,8 +21,8 @@ RUN composer install --no-dev --no-interaction --optimize-autoloader --no-script
 COPY . .
 RUN composer dump-autoload --optimize --no-dev
 
-EXPOSE 8080
+EXPOSE 8082
 
 # Serve through Slim's front controller. The built-in server routes
 # unknown paths to public/index.php and serves real files (CSS) directly.
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+CMD ["php", "-S", "0.0.0.0:8082", "-t", "public"]

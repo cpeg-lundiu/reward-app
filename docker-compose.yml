@@ -1,0 +1,42 @@
+# Self-contained stack: the PHP app + its own MySQL database.
+# Start it with:  docker compose up --build
+# Then open:      http://localhost:8080
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: rewards
+      DB_USER: rewards
+      DB_PASS: rewards_pw
+      APP_DEBUG: "true"
+      APP_SESSION_NAME: reward_app_session
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: rewards
+      MYSQL_USER: rewards
+      MYSQL_PASSWORD: rewards_pw
+      MYSQL_ROOT_PASSWORD: root_pw
+    volumes:
+      - dbdata:/var/lib/mysql
+      # schema.sql runs automatically the first time the database is created.
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+
+volumes:
+  dbdata:

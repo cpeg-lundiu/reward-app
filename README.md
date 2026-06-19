@@ -67,6 +67,26 @@ Tailwind CSS (standalone CLI) · clean **Controller → Service → Repository**
 
    Open http://127.0.0.1:8080 — register a parent account to get started.
 
+## Run with Docker (alternative)
+
+A self-contained stack (the app + its own MySQL) is provided — no local PHP or
+MySQL needed, just Docker.
+
+```bash
+docker compose up --build
+```
+
+Then open http://localhost:8080. The database schema loads automatically on first
+start (via `database/schema.sql`), and data persists in the `dbdata` volume.
+
+- Stop: `docker compose down`
+- Reset the database (wipe all data): `docker compose down -v` then `up` again
+- The DB credentials live in `docker-compose.yml` (`environment:`) — change them
+  there if you like; the app reads them from environment variables.
+
+> Note: this uses PHP's built-in server, which is fine for home/personal use.
+> For a public production deployment, put it behind nginx + php-fpm.
+
 ## How it works
 
 1. A **parent** registers (email + password + family currency).

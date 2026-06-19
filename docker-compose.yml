@@ -28,7 +28,7 @@ services:
       MYSQL_PASSWORD: rewards_pw
       MYSQL_ROOT_PASSWORD: root_pw
     volumes:
-      - dbdata:/var/lib/mysql
+      - ./dbdata:/var/lib/mysql
       # schema.sql runs automatically the first time the database is created.
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
     healthcheck:

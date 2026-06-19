@@ -37,6 +37,3 @@ services:
       timeout: 5s
       retries: 15
     restart: unless-stopped
-
-volumes:
-  dbdata:

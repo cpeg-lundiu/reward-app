@@ -1,8 +1,12 @@
 # PHP runtime for the Piggy Rewards app.
 FROM php:8.2-cli
 
-# MySQL PDO driver.
-RUN docker-php-ext-install pdo_mysql
+# System packages Composer needs to fetch/extract packages (git, unzip),
+# plus the MySQL PDO driver.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git unzip \
+    && docker-php-ext-install pdo_mysql \
+    && rm -rf /var/lib/apt/lists/*
 
 # Composer (copied from the official image).
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

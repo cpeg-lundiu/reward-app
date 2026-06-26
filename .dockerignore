@@ -4,6 +4,7 @@ vendor/
 .env
 tailwindcss
 tailwindcss.exe
+dbdata/
 *.log
 .DS_Store
 Thumbs.db

@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Repositories\TaskCompletionRepository;
 use App\Repositories\TaskRepository;
 use App\Repositories\UserRepository;
+use App\Support\Tz;
 use App\Support\ValidationException;
 use DateTimeImmutable;
 use PDO;
@@ -24,6 +25,13 @@ final class TaskService
         private TaskCompletionRepository $completions,
         private UserRepository $users
     ) {
+    }
+
+    /** The child's IANA timezone (used to decide what "today" means for them). */
+    private function childTz(int $childId): string
+    {
+        $child = $this->users->find($childId);
+        return Tz::normalize($child['timezone'] ?? null);
     }
 
     /** Parent creates a task assigned to one of their children. */
@@ -52,7 +60,7 @@ final class TaskService
         $specificDate = null;
         $weekday = null;
         $dayOfMonth = null;
-        $today = date('Y-m-d');
+        $today = Tz::today($this->childTz($childId));
         $startDate = $today;
         $endDate = trim((string) ($input['end_date'] ?? '')) ?: null;
 
@@ -142,7 +150,7 @@ final class TaskService
 
         $tasks = $this->tasks->activeForChild($childId);
         $map = $this->completions->mapForChildInRange($childId, $gridStart->format('Y-m-d'), $gridEnd->format('Y-m-d'));
-        $today = date('Y-m-d');
+        $today = Tz::today($this->childTz($childId));
 
         $weeks = [];
         $week = [];
@@ -197,7 +205,7 @@ final class TaskService
         if (!$this->isValidDate($dueDate) || !$this->occursOn($task, new DateTimeImmutable($dueDate))) {
             throw new ValidationException('That task is not scheduled for that day.');
         }
-        if ($dueDate > date('Y-m-d')) {
+        if ($dueDate > Tz::today($this->childTz($childId))) {
             throw new ValidationException('You can\'t complete a task before its day.');
         }
 

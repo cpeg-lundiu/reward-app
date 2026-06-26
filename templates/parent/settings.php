@@ -33,3 +33,44 @@
         </button>
     </form>
 </div>
+
+<!-- My timezone -->
+<div class="bg-white rounded-3xl shadow-lg shadow-brand-100 p-6 mt-5">
+    <h2 class="font-bold text-slate-700 mb-1">🕒 My timezone</h2>
+    <p class="text-sm text-slate-500 mb-3">Times across the app are shown in your timezone.</p>
+    <form method="post" action="/parent/settings/timezone" class="space-y-3">
+        <input type="hidden" name="_csrf" value="<?= e($csrf_token) ?>">
+        <select name="timezone" required class="w-full rounded-2xl border border-brand-200 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300">
+            <?php foreach ($timezones as $tz): ?>
+                <option value="<?= e($tz) ?>" <?= $tz === $timezone ? 'selected' : '' ?>><?= e($tz) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-2xl shadow-md shadow-brand-200">Save my timezone</button>
+    </form>
+</div>
+
+<!-- Children timezones -->
+<?php if ($children): ?>
+<div class="bg-white rounded-3xl shadow-lg shadow-brand-100 p-6 mt-5">
+    <h2 class="font-bold text-slate-700 mb-1">🌍 Children's timezones</h2>
+    <p class="text-sm text-slate-500 mb-3">A child's tasks use their own timezone to decide which day is "today".</p>
+    <div class="space-y-4">
+        <?php foreach ($children as $child): ?>
+            <form method="post" action="/parent/settings/child-timezone" class="flex flex-col sm:flex-row sm:items-end gap-2">
+                <input type="hidden" name="_csrf" value="<?= e($csrf_token) ?>">
+                <input type="hidden" name="child_id" value="<?= (int) $child['id'] ?>">
+                <div class="flex-1">
+                    <label class="block text-sm font-semibold text-slate-600 mb-1"><?= e($child['avatar_emoji'] ?: '🐷') ?> <?= e($child['display_name']) ?></label>
+                    <select name="timezone" required class="w-full rounded-2xl border border-brand-200 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300">
+                        <?php $childTz = \App\Support\Tz::normalize($child['timezone'] ?? null); ?>
+                        <?php foreach ($timezones as $tz): ?>
+                            <option value="<?= e($tz) ?>" <?= $tz === $childTz ? 'selected' : '' ?>><?= e($tz) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-white font-bold px-4 py-3 rounded-2xl shadow-md shadow-brand-200 whitespace-nowrap">Save</button>
+            </form>
+        <?php endforeach; ?>
+    </div>
+</div>
+<?php endif; ?>

@@ -12,6 +12,15 @@ A cute, mobile-first family rewards web app for **parents** and **children**.
   (stars spent immediately); parents mark claims complete (or reject to refund).
 - **Currency** — each parent picks a family currency at sign-up and can change it
   later with an exchange rate, which converts all balances.
+- **Timezones** — datetimes are stored in UTC. Each user has an IANA timezone
+  (parent set at sign-up, child set when created, both editable in Settings).
+  Times are displayed in the viewer's timezone, and a child's calendar/"today"
+  uses the child's timezone so they can complete tasks on their own local day.
+
+> Upgrading an existing database: this release adds a `timezone` column to
+> `users`. On a fresh DB it's created automatically; for an existing one run:
+> `ALTER TABLE users ADD COLUMN timezone VARCHAR(64) NOT NULL DEFAULT 'UTC';`
+> (or recreate with `php database/migrate.php`, or `docker compose down -v`).
 
 ## Stack
 

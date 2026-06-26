@@ -13,6 +13,7 @@ use App\Services\RewardService;
 use App\Services\TaskService;
 use App\Support\Auth;
 use App\Support\Flash;
+use App\Support\Tz;
 use App\Support\ValidationException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -37,6 +38,11 @@ final class ChildController extends AbstractController
     {
         $parent = $this->users->find((int) $this->currentUser()['parent_id']);
         return $parent['currency'] ?? 'USD';
+    }
+
+    private function timezone(): string
+    {
+        return Tz::normalize($this->currentUser()['timezone'] ?? null);
     }
 
     private function fail(Response $response, ValidationException $e, string $to): Response
@@ -64,6 +70,7 @@ final class ChildController extends AbstractController
             'pending_cents' => $pending,
             'stars' => (int) $child['stars'],
             'transactions' => $this->transactions->forChild($childId, 10),
+            'tz' => $this->timezone(),
         ]);
     }
 
@@ -88,11 +95,12 @@ final class ChildController extends AbstractController
     public function tasks(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $year = (int) ($params['year'] ?? date('Y'));
-        $month = (int) ($params['month'] ?? date('n'));
+        $now = Tz::now($this->timezone());
+        $year = (int) ($params['year'] ?? $now->format('Y'));
+        $month = (int) ($params['month'] ?? $now->format('n'));
         if ($month < 1 || $month > 12) {
-            $year = (int) date('Y');
-            $month = (int) date('n');
+            $year = (int) $now->format('Y');
+            $month = (int) $now->format('n');
         }
 
         $calendar = $this->tasksService->calendarMonth((int) $this->currentUser()['id'], $year, $month);

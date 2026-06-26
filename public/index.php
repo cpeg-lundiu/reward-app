@@ -7,6 +7,9 @@ use Slim\Factory\AppFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// Operate in UTC internally; per-user timezones are applied for logic/display.
+date_default_timezone_set('UTC');
+
 $settings = require __DIR__ . '/../config/settings.php';
 
 // Sessions (native PHP) — used for auth + flash messages + CSRF.

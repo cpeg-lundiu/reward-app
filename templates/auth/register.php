@@ -34,6 +34,16 @@
                 <p class="text-xs text-slate-400 mt-1">You can change this later with an exchange rate.</p>
             </div>
             <div>
+                <label class="block text-sm font-semibold text-slate-600 mb-1">Your timezone</label>
+                <select name="timezone" id="timezone" required
+                        class="w-full rounded-2xl border border-brand-200 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300">
+                    <?php foreach ($timezones as $tz): ?>
+                        <option value="<?= e($tz) ?>" <?= $tz === 'UTC' ? 'selected' : '' ?>><?= e($tz) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="text-xs text-slate-400 mt-1">Used to show times correctly. We'll try to detect it automatically.</p>
+            </div>
+            <div>
                 <label class="block text-sm font-semibold text-slate-600 mb-1">Password</label>
                 <input type="password" name="password" required
                        class="w-full rounded-2xl border border-brand-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-300"
@@ -52,3 +62,16 @@
         </p>
     </div>
 </div>
+
+<script>
+// Pre-select the browser's timezone if we can detect it.
+(function () {
+    try {
+        var tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        var sel = document.getElementById('timezone');
+        if (tz && sel && [].some.call(sel.options, function (o) { return o.value === tz; })) {
+            sel.value = tz;
+        }
+    } catch (e) { /* leave default */ }
+})();
+</script>

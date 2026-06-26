@@ -16,7 +16,7 @@
              data-child="<?= (int) $child['id'] ?>"
              data-offset="<?= count($items) ?>"
              data-has-more="<?= $has_more ? '1' : '0' ?>">
-            <?= $this->fetch('parent/_transaction-rows.php', ['items' => $items, 'currency' => $currency]) ?>
+            <?= $this->fetch('parent/_transaction-rows.php', ['items' => $items, 'currency' => $currency, 'tz' => $tz]) ?>
         </div>
 
         <div id="tx-sentinel" class="py-4 text-center text-sm text-slate-400 <?= $has_more ? '' : 'hidden' ?>">

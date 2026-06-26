@@ -1,6 +1,6 @@
 <?php
 /** Renders a batch of transaction rows. Shared by the full page and the
- *  lazy-load JSON endpoint. Receives: $items, $currency. */
+ *  lazy-load JSON endpoint. Receives: $items, $currency, $tz (viewer timezone). */
 $labels = ['reward' => 'Reward', 'withdraw' => 'Withdrawal', 'adjustment' => 'Adjustment', 'conversion' => 'Currency change'];
 $badges = [
     'pending' => '<span class="text-xs font-bold text-amber-600">pending</span>',
@@ -16,7 +16,7 @@ foreach ($items as $tx):
             <?php if (!empty($tx['note'])): ?>
                 <p class="text-xs text-slate-400 truncate"><?= e($tx['note']) ?></p>
             <?php endif; ?>
-            <p class="text-xs text-slate-400"><?= e(date('M j, Y · g:i A', strtotime($tx['created_at']))) ?></p>
+            <p class="text-xs text-slate-400"><?= e(\App\Support\Tz::display($tx['created_at'], $tz)) ?></p>
         </div>
         <span class="font-bold text-sm whitespace-nowrap <?= $amount < 0 ? 'text-red-500' : ($tx['type'] === 'conversion' ? 'text-slate-400' : 'text-green-600') ?>">
             <?php if ($tx['type'] === 'conversion'): ?>

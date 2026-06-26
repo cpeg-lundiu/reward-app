@@ -51,6 +51,8 @@ return function (App $app): void {
 
             $p->get('/settings', [ParentController::class, 'showSettings']);
             $p->post('/settings/currency', [ParentController::class, 'changeCurrency']);
+            $p->post('/settings/timezone', [ParentController::class, 'changeTimezone']);
+            $p->post('/settings/child-timezone', [ParentController::class, 'changeChildTimezone']);
 
             $p->get('/tasks', [ParentController::class, 'showTasks']);
             $p->post('/tasks/add', [ParentController::class, 'addTask']);

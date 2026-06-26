@@ -10,6 +10,7 @@ use App\Support\Auth;
 use App\Support\Flash;
 use App\Support\Money;
 use App\Support\PasswordPolicy;
+use App\Support\Tz;
 use App\Support\ValidationException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -77,6 +78,7 @@ final class AuthController extends AbstractController
         return $this->render($response, 'auth/register.php', [
             'title' => 'Create a parent account',
             'currencies' => Money::currencies(),
+            'timezones' => Tz::identifiers(),
             'password_rules' => PasswordPolicy::rulesText(),
         ]);
     }
@@ -90,7 +92,8 @@ final class AuthController extends AbstractController
                 (string) ($data['email'] ?? ''),
                 (string) ($data['display_name'] ?? ''),
                 (string) ($data['password'] ?? ''),
-                (string) ($data['currency'] ?? '')
+                (string) ($data['currency'] ?? ''),
+                (string) ($data['timezone'] ?? '')
             );
         } catch (ValidationException $e) {
             foreach ($e->errors() as $message) {

@@ -70,13 +70,13 @@ final class UserRepository
         return $stmt->fetch() ?: null;
     }
 
-    public function createParent(string $email, string $passwordHash, string $displayName, string $currency): int
+    public function createParent(string $email, string $passwordHash, string $displayName, string $currency, string $timezone): int
     {
         $stmt = $this->pdo->prepare(
-            "INSERT INTO users (role, email, password_hash, display_name, currency)
-             VALUES ('parent', ?, ?, ?, ?)"
+            "INSERT INTO users (role, email, password_hash, display_name, currency, timezone)
+             VALUES ('parent', ?, ?, ?, ?, ?)"
         );
-        $stmt->execute([$email, $passwordHash, $displayName, $currency]);
+        $stmt->execute([$email, $passwordHash, $displayName, $currency, $timezone]);
 
         return (int) $this->pdo->lastInsertId();
     }
@@ -86,15 +86,22 @@ final class UserRepository
         string $username,
         string $passwordHash,
         string $displayName,
-        string $avatarEmoji
+        string $avatarEmoji,
+        string $timezone
     ): int {
         $stmt = $this->pdo->prepare(
-            "INSERT INTO users (role, parent_id, username, password_hash, display_name, must_change_password, avatar_emoji)
-             VALUES ('child', ?, ?, ?, ?, 1, ?)"
+            "INSERT INTO users (role, parent_id, username, password_hash, display_name, must_change_password, avatar_emoji, timezone)
+             VALUES ('child', ?, ?, ?, ?, 1, ?, ?)"
         );
-        $stmt->execute([$parentId, $username, $passwordHash, $displayName, $avatarEmoji]);
+        $stmt->execute([$parentId, $username, $passwordHash, $displayName, $avatarEmoji, $timezone]);
 
         return (int) $this->pdo->lastInsertId();
+    }
+
+    public function updateTimezone(int $userId, string $timezone): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE users SET timezone = ? WHERE id = ?');
+        $stmt->execute([$timezone, $userId]);
     }
 
     public function updatePassword(int $userId, string $passwordHash, bool $clearMustChange = false): void

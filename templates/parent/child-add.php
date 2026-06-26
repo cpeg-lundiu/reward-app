@@ -41,6 +41,16 @@
                    placeholder="Temporary password">
             <p class="text-xs text-slate-400 mt-1"><?= e($password_rules) ?> Your child will set their own on first login.</p>
         </div>
+        <div>
+            <label class="block text-sm font-semibold text-slate-600 mb-1">Child's timezone</label>
+            <select name="timezone" required
+                    class="w-full rounded-2xl border border-brand-200 px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-brand-300">
+                <?php foreach ($timezones as $tz): ?>
+                    <option value="<?= e($tz) ?>" <?= $tz === $default_timezone ? 'selected' : '' ?>><?= e($tz) ?></option>
+                <?php endforeach; ?>
+            </select>
+            <p class="text-xs text-slate-400 mt-1">Set this to where your child is, so their tasks use the right day.</p>
+        </div>
 
         <button type="submit"
                 class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-2xl transition shadow-md shadow-brand-200">

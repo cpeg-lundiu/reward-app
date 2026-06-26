@@ -9,6 +9,7 @@ use App\Repositories\TaskCompletionRepository;
 use App\Repositories\TransactionRepository;
 use App\Repositories\UserRepository;
 use App\Support\PasswordPolicy;
+use App\Support\Tz;
 use App\Support\ValidationException;
 
 final class AccountService
@@ -31,7 +32,8 @@ final class AccountService
         string $displayName,
         string $username,
         string $password,
-        string $avatarEmoji
+        string $avatarEmoji,
+        string $timezone
     ): int {
         $errors = [];
         $displayName = trim($displayName);
@@ -46,6 +48,9 @@ final class AccountService
         } elseif ($this->users->usernameExists($username)) {
             $errors[] = 'That username is already taken.';
         }
+        if (!Tz::isValid(trim($timezone))) {
+            $errors[] = 'Please choose a valid timezone for the child.';
+        }
         foreach (PasswordPolicy::validate($password) as $rule) {
             $errors[] = 'Preset password must ' . $rule . '.';
         }
@@ -59,7 +64,8 @@ final class AccountService
             $username,
             password_hash($password, PASSWORD_DEFAULT),
             $displayName,
-            $avatarEmoji
+            $avatarEmoji,
+            trim($timezone)
         );
     }
 

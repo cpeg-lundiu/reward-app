@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Repositories\UserRepository;
 use App\Support\Money;
 use App\Support\PasswordPolicy;
+use App\Support\Tz;
 use App\Support\ValidationException;
 
 final class AuthService
@@ -20,7 +21,7 @@ final class AuthService
      *
      * @throws ValidationException
      */
-    public function registerParent(string $email, string $displayName, string $password, string $currency): int
+    public function registerParent(string $email, string $displayName, string $password, string $currency, string $timezone): int
     {
         $errors = [];
         $email = trim(strtolower($email));
@@ -38,6 +39,9 @@ final class AuthService
         if (!Money::isSupported($currency)) {
             $errors[] = 'Please choose a supported currency.';
         }
+        if (!Tz::isValid(trim($timezone))) {
+            $errors[] = 'Please choose a valid timezone.';
+        }
         foreach (PasswordPolicy::validate($password) as $rule) {
             $errors[] = 'Password must ' . $rule . '.';
         }
@@ -50,7 +54,8 @@ final class AuthService
             $email,
             password_hash($password, PASSWORD_DEFAULT),
             $displayName,
-            $currency
+            $currency,
+            trim($timezone)
         );
     }
 

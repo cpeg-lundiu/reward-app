@@ -24,6 +24,7 @@ CREATE TABLE users (
     balance_cents        BIGINT       NOT NULL DEFAULT 0,
     stars                INT          NOT NULL DEFAULT 0,
     currency             CHAR(3)      NULL,                 -- set on parent rows; children inherit
+    timezone             VARCHAR(64)  NOT NULL DEFAULT 'UTC', -- IANA tz per user (e.g. America/New_York)
     avatar_emoji         VARCHAR(16)  NULL,
     created_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),

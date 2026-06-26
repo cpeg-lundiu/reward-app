@@ -18,6 +18,7 @@ use App\Support\Auth;
 use App\Support\Flash;
 use App\Support\Money;
 use App\Support\PasswordPolicy;
+use App\Support\Tz;
 use App\Support\ValidationException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -53,6 +54,11 @@ final class ParentController extends AbstractController
         return $this->currentUser()['currency'] ?? 'USD';
     }
 
+    private function timezone(): string
+    {
+        return Tz::normalize($this->currentUser()['timezone'] ?? null);
+    }
+
     /** Flash a service's validation errors and bounce back. */
     private function fail(Response $response, ValidationException $e, string $to): Response
     {
@@ -83,6 +89,8 @@ final class ParentController extends AbstractController
             'title' => 'Add a child',
             'active_nav' => 'home',
             'password_rules' => PasswordPolicy::rulesText(),
+            'timezones' => Tz::identifiers(),
+            'default_timezone' => $this->timezone(),
         ]);
     }
 
@@ -95,7 +103,8 @@ final class ParentController extends AbstractController
                 (string) ($d['display_name'] ?? ''),
                 (string) ($d['username'] ?? ''),
                 (string) ($d['password'] ?? ''),
-                (string) ($d['avatar_emoji'] ?? '')
+                (string) ($d['avatar_emoji'] ?? ''),
+                (string) ($d['timezone'] ?? '')
             );
         } catch (ValidationException $e) {
             return $this->fail($response, $e, '/parent/children/add');
@@ -193,6 +202,7 @@ final class ParentController extends AbstractController
             'active_nav' => 'money',
             'child' => $child,
             'currency' => $this->currency(),
+            'tz' => $this->timezone(),
             'items' => $items,
             'page_size' => self::TX_PAGE_SIZE,
             'has_more' => count($items) === self::TX_PAGE_SIZE,
@@ -214,6 +224,7 @@ final class ParentController extends AbstractController
         $html = $this->view->fetch('parent/_transaction-rows.php', [
             'items' => $items,
             'currency' => $this->currency(),
+            'tz' => $this->timezone(),
         ]);
 
         $response->getBody()->write((string) json_encode([
@@ -234,7 +245,36 @@ final class ParentController extends AbstractController
             'active_nav' => 'settings',
             'currencies' => Money::currencies(),
             'currency' => $this->currency(),
+            'timezones' => Tz::identifiers(),
+            'timezone' => $this->timezone(),
+            'children' => $this->users->childrenOf($this->parentId()),
         ]);
+    }
+
+    public function changeTimezone(Request $request, Response $response): Response
+    {
+        $tz = trim((string) (((array) $request->getParsedBody())['timezone'] ?? ''));
+        if (!Tz::isValid($tz)) {
+            Flash::error('Please choose a valid timezone.');
+            return $this->redirect($response, '/parent/settings');
+        }
+        $this->users->updateTimezone($this->parentId(), $tz);
+        Flash::success('Your timezone has been updated. 🕒');
+        return $this->redirect($response, '/parent/settings');
+    }
+
+    public function changeChildTimezone(Request $request, Response $response): Response
+    {
+        $d = (array) $request->getParsedBody();
+        $child = $this->users->childOfParent($this->parentId(), (int) ($d['child_id'] ?? 0));
+        $tz = trim((string) ($d['timezone'] ?? ''));
+        if (!$child || !Tz::isValid($tz)) {
+            Flash::error('Please choose a valid timezone for that child.');
+            return $this->redirect($response, '/parent/settings');
+        }
+        $this->users->updateTimezone((int) $child['id'], $tz);
+        Flash::success($child['display_name'] . "'s timezone has been updated. 🕒");
+        return $this->redirect($response, '/parent/settings');
     }
 
     public function changeCurrency(Request $request, Response $response): Response
